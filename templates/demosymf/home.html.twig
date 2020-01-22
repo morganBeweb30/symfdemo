@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <h1>{{ title }}</h1>
+    <div class="row">
+        <p class="col-3">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Architecto debitis repudiandae voluptates similique pariatur unde porro quibusdam? Optio, repellat odio corrupti eos quod temporibus saepe repellendus deserunt eaque accusantium porro cumque quas quo consequatur esse enim asperiores quam quia ducimus.</p>
+        <p class="col-3">Doloribus error corporis expedita placeat ad veniam alias dolore, illo veritatis dolor perspiciatis similique libero fugit vel, voluptatum amet accusantium! Deleniti corrupti modi ipsam quae reprehenderit maiores aliquam? Iure reiciendis corrupti quia, quas tenetur error soluta modi velit et quo!</p>
+        <p class="col-3">Ut modi consequatur enim placeat, non necessitatibus cum suscipit neque illo unde, et voluptate! Voluptates explicabo impedit, officiis ab ipsum quidem pariatur molestias numquam ut. Unde aspernatur, aliquam similique, adipisci mollitia accusantium veniam eum officiis ullam accusamus ex nobis. Excepturi?</p>
+        <p class="col-3">Ea consequatur voluptas nam porro nemo iste cumque accusamus voluptatibus, tempora eaque assumenda odit modi nobis laborum atque sint alias perferendis reiciendis sit voluptates dolor placeat veritatis distinctio? Doloribus sed temporibus provident vel rem iure beatae repudiandae repellat asperiores error?</p>
+    </div>
+    {% if age>18 %}
+        <p>Tu es majeur</p>
+    {% else %}
+        <p>Tu es miineur</p>
+    {% endif %}
+{% endblock %}

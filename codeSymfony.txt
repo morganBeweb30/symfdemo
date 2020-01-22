@@ -1,0 +1,211 @@
+composer create-project symfony/website-skeleton nom_projet
+ou 
+symfony new --full nom_projet
+
+dans le dossier :
+composer require server --dev 
+    installe un serveur pour l'environnement de dev.
+
+lancer le serveur :
+symfony server:start 
+// non :  ou 
+// non :  php bin/console server:run 
+Quitter le serveur avec ctrl+c 
+
+fabriquer un contrôleur :
+php bin/console make:controller BlogController
+//  created: src/Controller/BlogController.php 
+//  Created: templates/blog/index.html.twig 
+//  Success!
+
+créer une autre page :
+1- ajouter une fonction + annotation dans BlogController{} :
+/**
+* @Route("/", name="home")
+*/
+public function home() {
+    $this->render(blog/home.html.twig);
+}
+2- ajouter un fichier 'Template/blog/home.html.twig' avec du html ou twig.
+//  voir emmet pour coder twig 
+
+Templating : twig 
+interpolation : interprétation et affichage de variables : {{ nom_de_variable }}
+commandes : {% commande %}
+{% if age>18 %}
+    <p>Tu es majeur</p>
+{% else %}
+    <p>Tu es miineur</p>
+{% endif %}
+
+thèmes bootstrap :
+bootswatch.com 
+cliquer sur un thème 
+menu thème en haut pour dl le bootstrap.min.css 
+dans le head de base.html.twig : 
+    <link rel="stylesheet" href="https://bootswatch.com/4/cyborg/bootstrap.min.css">
+
+template de base :
+voir base.html.twig
+
+héritage du template de base sur une page :
+index.html.twig ou show.html.twig
+
+Pour chaque page ajoutée, ajouter une route dans le contrôleur :
+/**
+* @Route("/blog/10", name="blog_show")
+*/
+public function show() {
+    $this->render('blog/show.html.twig');
+}
+et 
+ajouter le fichier show.html.twig dans Template/blog/
+
+ORM = Object Relational Mapping = BDD 
+ - Entity représente une table 
+ - Manager sert à manipuler des lignes : insertion, mise à jour, suppression 
+ - Repositories sert à faire des sélections de données 
+ - Migrations : SF permet l'échange entre développeurs (via git par ex), donc via 
+    des fichiers, pas un sgbd. Les fichiers doivent refléter exactement la bdd 
+    pour permettre l'échange entre devs.
+Migration = faire passer la BDD d'un état A à un état B 
+
+Fixtures = créer des jeux de fausses données 
+Dans ./projet/.env, tout en bas :
+    DATABASE_URL explique à sf où se trouve la bdd 
+    Remplacer db_user par le user, db_password par le mdp et db_name par le nom du site (symfemo ici) 
+Puis dans la console, dans le projet, pour créer une bdd :
+php bin/console doctrine:database:create
+    > Created database `symfdemo` for connection named default
+Pour créer une table dans la bdd :
+php bin/console make:entity 
+    > ...name ?
+Article 
+    > created : src/Entity/Article.php 
+    > created: src/Repository/ArticleRepository.php 
+    > Entity generated! Now let's add some fields!
+    > You can always add more fields later manuallay or by re-running 
+    this command.
+    > New property name (press <return> to stop adding fields):
+title 
+    > Field type (enter ? to see all types) [string]:
+Un champ/propriété du nom de (par ex) 
+"createdAt", est écrit en camelcase dans la classe php, 
+mais sera écrit en sql : 
+"created_at" suivant la convention sql 
+Enter quand on a fini tous les champs/propriétés
+    > Success!
+    > Next: When you're ready, create a migration with make:migration 
+Maintenant on peut gérer la table grâce au manager, et faire des requêtes avec le repository 
+
+Migration :
+La table n'est pas encore créée, il faut la "migrer" pour qu'elle soit 
+créée :
+php bin/console make:migration 
+Pour traiter cette commande, Doctrine donne la priorité à mes 
+fichiers : 
+si qqchose est dans les fichiers mais pas dans la bdd, il le met 
+dans la bdd, si qqchose est !=, il corrige la bdd en fct des fichiers 
+    > Next: Review the new migration 
+    "src/Migrations/Version20200119212714.php"
+    > Then: Run the migration with 
+    php bin/console doctrine:migrations:migrate
+    > See https://symfony.com/doc/current/bundles/DoctrineMigrationsBundle/index.html
+La migration est préparée, il reste à la lancer :
+php bin/console doctrine:migrations:migrate
+
+Fixtures :
+composer require orm-fixtures --dev => installe le/s budle/s de fixtures 
+php bin/console make:fixtures  =>   fabrique les données 
+    > demande nom :
+    ArticleFixtures
+    > Success 
+    Next: Open your new fixtures class and start customizing it.
+    Load your fixtures by running: php bin/console doctrine:fixtures:load
+    Docs: https://symfony.com/doc/master/bundles/DoctrineFixturesBundle/index.html
+Fichier créé : src/dataFixtures/ArticleFixtures 
+Ajouter un nouvel article dans ce fichier 
+Lancer la méthode load via le manager :
+php bin/console doctrine:fixtures:load 
+    > ça va purger toute la bdd, continuer ? (yes/NO)
+    yes 
+    > purging database
+    > loading App\DataFixtures\AppFixtures
+    > loading App\DataFixtures\ArticleFixtures
+
+ACCEDER AUX DONNEES : REPOSITORY 
+MANIPULER LES DONNEES : MANAGER 
+
+Dans la méthode (index par ex) d'un contrôleur, on crée une 
+variable ($repo pe.) qui indique ce que Doctrine ira chercher dans 
+la bdd pour la variable : $article = $repo->find(), ->findOneByTitle(), ->findAll()...
+Ensuite on retourne $this->render(...) la variable ($article pe.) 
+pour indiquer à twig ce qu'il va afficher.
+
+Dans index.html.twig : boucle for dans les articles 
+{% for article in articles %}
+    Toute la forme des articles 
+{% endfor %}
+
+Pour afficher le contenu d'une colonne :
+    {{ article.title }}
+Dans la classe Entity\Article.php, $title et les autres propriétés 
+sont privées. Twig reçoit un "accès ainterdit", il cherche alors une 
+méthode :
+Article.getTitle(), et il trouve qu'elle return $this->title;
+Selon le code/les services utilisés, il peut chercher aussi isTitle(), 
+asTitle()...
+=> pas besoin d'écrire {{ article.getTitle }}, puisqu'on n'est pas 
+obligatoirement celui qui a accès au fichier Article.php 
+
+Pareil pour {{ article.content }}, {{ article.image }}
+mais PAS pour {{ article.createdAt }} parce que datetime est un objet, 
+et qu'il ne possède pas de méthode toString(), Twig ne peut pas le 
+convertir en string
+=> utiliser un filtre Twig : permet de formater une variable avant de 
+    l'afficher 
+Twig a plusierus/plein de filtres, voir la doc de "twig filtres".
+Pour datetime : {{ article.createdAt | date('d/m/Y') }}
+Pour des raisons de sécurité, les balises <p></p> (et autres) sont 
+affichées (htmlEntities()). Utiliser le filtre "raw" (brut) pour 
+outrepasser cette fonction.
+
+ROUTES PARAMETREES
+Bouton "Lire la suite" : il renvoie toujours vers l'article 10, on 
+doit lui attribuer une route spécifique par article 
+/**
+* @Route("/demosymf/{id}", name="demosymf_show")
+*/
+
+public function show($id) {
+return $this->render('demosymf/show.html.twig');
+}
+
+
+
+/***    erreur fabio    ***/
+EntityManagerInterface
+/***/
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

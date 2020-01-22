@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello {{ controller_name }} !{% endblock %}
+
+{% block body %}
+
+<section class="articles row">
+{#    article>h2{titre de l'article}+div.metadata{Ecrit le 18/01/2020 à 19:10 dans la catégorie Politique}+div.content>img+(p>lorem15)*2+a.btn.btn-warning{Lire la suite}   #}
+
+{% for article in articles %}
+    <article class="col-4">
+        <h2>{{ article.title }}</h2>
+        <div class="metadata">Ecrit le {{ article.createdAt | date('d/m/Y à H:i') }} dans la catégorie Politique</div>
+        <div class="content">
+            <img src="{{ article.image }}" alt="">
+            {{ article.content | raw }}
+            <a href="{{ path('demosymf_show') }}" class="btn btn-warning">Lire la suite</a>
+        </div>
+    </article>
+{% endfor %}
+
+
+
+</section>
+
+{% endblock %}
